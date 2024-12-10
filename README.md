@@ -156,5 +156,36 @@ Contém pacotes e módulos de funcionalidade da API.
 #### **3. Demais arquivos**
 Os arquivos localizados fora das pastas são utilizados para criação de outros arquivos (``.env.example`` e ``.env``), arquivos para funcionamento do contêiners (``Dockerfile`` e ``docker-compose.yaml``) e arquivos para buildar o projeto (``go.sum`` e ``go.mod``).
 
+## Endpoints
+
+#### **Usuários**:
+
+- **POST** /login
+- **GET** /api/users
+- **GET** /api/users/:id
+- **POST** /api/users
+- **DELETE** /api/users/:id
+
+#### **Receitas**:
+
+- **GET** /api/receitas
+- **GET** /api/receitas/:id
+- **POST** /api/receitas
+- **DELETE** /api/receitas/:id
+
+#### **Despesas**:
+
+- **GET** /api/despesas
+- **GET** /api/despesas/:id
+- **POST** /api/despesas
+- **DELETE** /api/despesas/:id
+
+#### **Reservas**:
+
+- **GET** /api/reservas
+- **GET** /api/reservas/:id
+- **POST** /api/reservas
+- **DELETE** /api/reservas/:id
+
 ## Informações extras
 Caso ocorra o seguinte erro na conexão com o banco de dados ``Public Key Retrieval is not allowed`` será preciso alterar a propriedade ``allowPublicKeyRetrieval`` para **true** na aba **Propriedades do driver** no DBeaver ou equivalente.
