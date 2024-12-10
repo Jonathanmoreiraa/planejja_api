@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 .PHONY: all build test deps deps-cleancache
 
 GOCMD=go
@@ -7,22 +9,32 @@ CODE_COVERAGE=code-coverage
 
 all: test build
 
-build:
-	go build -o bin/main main.go
-
-wire:
-	cd pkg/di && wire
-
-run:
-	go run main.go
+${BINARY_DIR}:
+	mkdir -p $(BINARY_DIR)
 
 build: ${BINARY_DIR}
 	$(GOCMD) build -o $(BINARY_DIR) -v ./cmd/api
+
+run:
+	$(GOCMD) run ./cmd/api
+
+test:
+	$(GOCMD) test ./... -cover
+
+test-coverage:
+	$(GOCMD) test ./... -coverprofile=$(CODE_COVERAGE).out
+	$(GOCMD) tool cover -html=$(CODE_COVERAGE).out
 
 deps:
 	$(GOCMD) get -u -t -d -v ./...
 	$(GOCMD) mod tidy
 	$(GOCMD) mod vendor
 
+deps-cleancache:
+	$(GOCMD) clean -modcache
+
+wire:
+	cd pkg/di && wire
+
 up:
-	@docker compose up -d
+	@docker-compose up --build
