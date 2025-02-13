@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -16,51 +17,24 @@ var (
 	expirationTime, _ = strconv.Atoi(os.Getenv("JWT_EXPIRATION_TIME"))
 )
 
-func LoginHandler(c *gin.Context) {
-	c.Request.Header.Set("Content-Type", "application/json")
-
-	//var u handler.User
-	//json.NewDecoder(c.Request.Response.Body).Decode(&u)
-	//fmt.Printf("The user request value %v", u)
-
-	user := c.PostForm("username")
-	pass := c.PostForm("password")
-
-	if user != "user" || pass != "password" {
-		c.Writer.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(c.Copy().Writer, "Invalid credentials")
-	}
-
-	tokenString, err := createToken(user)
-	if err != nil {
-		c.Writer.WriteHeader(http.StatusInternalServerError)
-		fmt.Errorf("No username found")
-	}
-	c.Writer.WriteHeader(http.StatusOK)
-
-	c.JSON(http.StatusOK, gin.H{
-		"token": tokenString,
-	})
-}
-
-func AuthorizationMiddleware(c *gin.Context) {
-	c.Request.Header.Set("Content-Type", "application/json")
-	tokenString := c.Request.Header.Get("Authorization")
+func AuthorizationMiddleware(ctx *gin.Context) {
+	ctx.Request.Header.Set("Content-Type", "application/json")
+	tokenString := ctx.Request.Header.Get("Authorization")
 	if tokenString == "" {
-		fmt.Fprint(c.Copy().Writer, "Missing authorization header")
-		c.AbortWithStatus(http.StatusUnauthorized)
+		fmt.Fprint(ctx.Copy().Writer, "Missing authorization header")
+		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 	tokenString = tokenString[len("Bearer "):]
 
-	err := verifyToken(tokenString)
+	err := VerifyToken(tokenString)
 	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 }
 
-func createToken(username string) (string, error) {
+func CreateToken(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"username": username,
@@ -69,19 +43,18 @@ func createToken(username string) (string, error) {
 
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%s", err)
 	}
 
 	return tokenString, nil
 }
 
-func verifyToken(tokenString string) error {
+func VerifyToken(tokenString string) error {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return secretKey, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		return secretKey, nil
 	})
-
 	if err != nil {
-		return err
+		return fmt.Errorf("error: %v", err)
 	}
 
 	if !token.Valid {
@@ -89,4 +62,9 @@ func verifyToken(tokenString string) error {
 	}
 
 	return nil
+}
+
+func CheckPasswordHash(hash string, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }

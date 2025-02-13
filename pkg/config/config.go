@@ -2,10 +2,12 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
-// Config estrutura para armazenar as configurações da aplicação.
 type Config struct {
 	AppName    string
 	DbUser     string
@@ -15,8 +17,12 @@ type Config struct {
 	DbPort     string
 }
 
-// LoadConfig carrega as configurações do arquivo .env ou variáveis de ambiente.
 func LoadConfig() (*Config, error) {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	if appNameEnv := os.Getenv("APP_NAME"); appNameEnv == "" {
 		return nil, fmt.Errorf("Arquivo .env não encontrado, usando variáveis de ambiente")
 	}
@@ -31,10 +37,10 @@ func LoadConfig() (*Config, error) {
 	}, nil
 }
 
-func (c Config) GetDSN() string {
+func (conf Config) GetDSN() string {
 	return fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		c.DbUser, c.DbPassword, c.DbHost, c.DbPort, c.DbName,
+		"%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true",
+		conf.DbUser, conf.DbPassword, conf.DbHost, conf.DbPort, conf.DbName,
 	)
 }
 

@@ -3,6 +3,7 @@ package http
 import (
 	"github/jonathanmoreiraa/planejja/pkg/api/handler"
 	"github/jonathanmoreiraa/planejja/pkg/api/middleware"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,12 +16,12 @@ func NewServerHTTP(Handler *handler.UserHandler) *ServerHTTP {
 	engine := gin.New()
 	engine.Use(gin.Logger())
 
-	engine.POST("/login", middleware.LoginHandler)
+	engine.POST("/login", Handler.Login)
+	engine.POST("/user/new", Handler.Save)
 	api := engine.Group("/api", middleware.AuthorizationMiddleware)
 
 	api.GET("/users", Handler.FindAll)
 	api.GET("/users/:id", Handler.FindByID)
-	api.POST("/users", Handler.Save)
 	api.DELETE("/users/:id", Handler.Delete)
 
 	api.GET("/receitas", Handler.FindAll)
@@ -42,5 +43,12 @@ func NewServerHTTP(Handler *handler.UserHandler) *ServerHTTP {
 }
 
 func (sh *ServerHTTP) Start() {
-	sh.engine.Run(":3000")
+	sh.engine.Run(getEnv("PORT", ":8080"))
+}
+
+func getEnv(key, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return ":" + value
+	}
+	return defaultValue
 }

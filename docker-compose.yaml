@@ -18,7 +18,7 @@ services:
     image: mysql:8.0
     container_name: mysql-db
     ports:
-      - "3306:3306"
+      - "3307:3307"
     environment:
       MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
       MYSQL_ROOT_HOST: '%'
@@ -26,6 +26,7 @@ services:
       MYSQL_USER: '${DB_USER}'
       MYSQL_PASSWORD: '${DB_PASSWORD}'
       MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_TCP_PORT: 3307
     volumes:
       - db_data:/var/lib/mysql
 

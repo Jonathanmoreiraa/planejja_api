@@ -18,14 +18,10 @@ func ConnectDatabase(cfg config.Config) (*gorm.DB, error) {
 		log.Fatal("cannot load database: ", dbErr)
 	}
 
-	db.AutoMigrate(&domain.Users{})
-	db.AutoMigrate(&domain.Receitas{})
-	db.AutoMigrate(&domain.Reservas{})
-	db.AutoMigrate(&domain.Despesas{})
-	db.AutoMigrate(&domain.DespesasParcelas{})
-	db.AutoMigrate(&domain.Categorias{})
-	db.AutoMigrate(&domain.CategoriasDespesas{})
-	db.AutoMigrate(&domain.CategoriasReceitas{})
+	err := db.AutoMigrate(&domain.Users{})
+	if err != nil {
+		log.Fatal("erro na migração: ", err)
+	}
 
 	return db, dbErr
 }

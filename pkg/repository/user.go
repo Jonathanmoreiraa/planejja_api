@@ -16,28 +16,41 @@ func NewUserRepository(DB *gorm.DB) interfaces.UserRepository {
 	return &userDatabase{DB}
 }
 
-func (c *userDatabase) FindAll(ctx context.Context) ([]domain.Users, error) {
+func (database *userDatabase) FindAll(ctx context.Context) ([]domain.Users, error) {
 	var users []domain.Users
-	err := c.DB.Find(&users).Error
+	err := database.DB.Find(&users).Error
 
 	return users, err
 }
 
-func (c *userDatabase) FindByID(ctx context.Context, id uint) (domain.Users, error) {
+func (database *userDatabase) FindByID(ctx context.Context, id uint) (domain.Users, error) {
 	var user domain.Users
-	err := c.DB.First(&user, id).Error
+	err := database.DB.First(&user, id).Error
 
 	return user, err
 }
 
-func (c *userDatabase) Save(ctx context.Context, user domain.Users) (domain.Users, error) {
-	err := c.DB.Save(&user).Error
+func (database *userDatabase) FindByEmail(ctx context.Context, email string) (domain.Users, error) {
+	var user domain.Users
+	err := database.DB.First(&user, "email = ?", email).Error
 
 	return user, err
 }
 
-func (c *userDatabase) Delete(ctx context.Context, user domain.Users) error {
-	err := c.DB.Delete(&user).Error
+func (database *userDatabase) Save(ctx context.Context, user domain.Users) (domain.Users, error) {
+	err := database.DB.Save(&user).Error
+
+	return user, err
+}
+
+func (database *userDatabase) Update(ctx context.Context, user domain.Users) (domain.Users, error) {
+	err := database.DB.Save(&user).Error
+
+	return user, err
+}
+
+func (database *userDatabase) Delete(ctx context.Context, user domain.Users) error {
+	err := database.DB.Delete(&user).Error
 
 	return err
 }
