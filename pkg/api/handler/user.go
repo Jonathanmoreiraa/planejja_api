@@ -1,29 +1,24 @@
 package handler
 
 import (
-	"fmt"
 	"github/jonathanmoreiraa/planejja/pkg/domain"
 	services "github/jonathanmoreiraa/planejja/pkg/usecase/interface"
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/copier"
 	"gorm.io/gorm/logger"
 )
+
+//TODO: Assim que iniciar a tela no front, criar a função para recuperar a senha
 
 type UserHandler struct {
 	userUseCase services.UserUseCase
 }
 
-type Response struct {
-	ID      uint   `copier:"must"`
-	Name    string `copier:"must"`
-	Surname string `copier:"must"`
-}
-
-type LoginData struct {
+type LoginCredentials struct {
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
@@ -34,40 +29,34 @@ func NewUserHandler(usecase services.UserUseCase) *UserHandler {
 	}
 }
 
-func (cr *UserHandler) FindAll(ctx *gin.Context) {
-	users, err := cr.userUseCase.FindAll(ctx.Request.Context())
-
-	if err != nil {
-		ctx.AbortWithStatus(http.StatusNotFound)
-	} else {
-		response := []Response{}
-		copier.Copy(&response, &users)
-
-		ctx.JSON(http.StatusOK, response)
-	}
-}
-
 func (cr *UserHandler) FindByID(ctx *gin.Context) {
-	paramsId := ctx.Param("id")
-	id, err := strconv.Atoi(paramsId)
-
+	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "cannot parse id",
+			"message": "Erro ao localizar usuário com id informado!",
+			"data":    nil,
+			"error":   "Erro ao localizar usuário com id informado!",
 		})
 		return
 	}
 
 	user, err := cr.userUseCase.FindByID(ctx.Request.Context(), uint(id))
-
 	if err != nil {
-		ctx.AbortWithStatus(http.StatusNotFound)
-	} else {
-		response := Response{}
-		copier.Copy(&response, &user)
-
-		ctx.JSON(http.StatusOK, response)
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": "Erro ao localizar usuário!",
+			"data":    nil,
+			"error":   "Erro ao localizar usuário!",
+		})
+		return
 	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"id":         user.ID,
+		"name":       user.Name,
+		"email":      user.Email,
+		"password":   user.Password,
+		"birth_date": user.BirthDate,
+	})
 }
 
 func (cr *UserHandler) Save(ctx *gin.Context) {
@@ -99,24 +88,46 @@ func (cr *UserHandler) Save(ctx *gin.Context) {
 func (cr *UserHandler) Update(ctx *gin.Context) {
 	var user domain.Users
 
-	if err := ctx.BindJSON(&user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "Erro ao criar a conta.",
-			"error":   err,
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
+			"message": "Erro ao criar a conta com esses dados.",
+			"data":    nil,
 		})
 		return
 	}
 
-	user, err := cr.userUseCase.Update(ctx.Request.Context(), user)
-
+	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.AbortWithStatus(http.StatusNotFound)
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Erro ao editar o usuário",
+			"data":    nil,
+			"error":   "Erro ao editar o usuário",
+		})
+		return
+	}
+	user.ID = uint(id)
+
+	//TODO: adicionar uma validação para também atualizar o email e alterar no repository
+
+	err = cr.userUseCase.Update(ctx.Request.Context(), user)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusConflict, gin.H{
+			"message": "Erro ao criar a conta!",
+			"error":   err.Error(),
+		})
+		return
 	}
 
-	response := Response{}
-	copier.Copy(&response, &user)
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "Usuário editado com sucesso!",
+		"data": gin.H{
+			"name":       user.Name,
+			"email":      user.Email,
+			"password":   user.Password,
+			"birth_date": user.BirthDate,
+		},
+	})
 
-	ctx.JSON(http.StatusOK, response)
 }
 
 func (cr *UserHandler) Delete(ctx *gin.Context) {
@@ -151,10 +162,10 @@ func (cr *UserHandler) Delete(ctx *gin.Context) {
 func (cr *UserHandler) Login(ctx *gin.Context) {
 	ctx.Request.Header.Set("Content-Type", "application/json")
 
-	var loginData LoginData
-	if err := ctx.ShouldBindJSON(&loginData); err != nil {
+	var loginCredentials LoginCredentials
+	if err := ctx.ShouldBindJSON(&loginCredentials); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
-			"message": "Erro ao realizar o login!",
+			"message": "Erro ao realizar o login, verifique as credenciais!",
 			"error":   nil,
 		})
 
@@ -162,25 +173,7 @@ func (cr *UserHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	if loginData.Email == "" {
-		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
-			"message": "O e-mail não pode ser vazio!",
-			"error":   nil,
-		})
-
-		return
-	}
-
-	if loginData.Password == "" {
-		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
-			"message": "A senha não pode ser vazia!",
-			"error":   nil,
-		})
-
-		return
-	}
-
-	tokenString, err := cr.userUseCase.Login(ctx, loginData.Email, loginData.Password)
+	loginData, err := cr.userUseCase.Login(ctx, loginCredentials.Email, loginCredentials.Password)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
 			"message": err.Error(),
@@ -190,13 +183,24 @@ func (cr *UserHandler) Login(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println(tokenString)
+	expirationTime, err := strconv.Atoi(os.Getenv("JWT_EXPIRATION_TIME"))
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
+			"message": "Erro ao realizar o login!",
+			"error":   "Erro ao realizar o login!",
+		})
 
-	ctx.Writer.WriteHeader(http.StatusOK)
+		return
+	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"token":      tokenString,
-		"expires in": os.Getenv("JWT_EXPIRATION_TIME"),
+		"token": gin.H{
+			"access_token": loginData["token"],
+			"token_type":   "Bearer",
+			"expires_in":   time.Now().Add(time.Hour * time.Duration(expirationTime)).Unix(),
+		},
+		"user": gin.H{
+			"id": loginData["userId"],
+		},
 	})
-
 }

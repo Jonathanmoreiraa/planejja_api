@@ -18,26 +18,11 @@ func NewServerHTTP(Handler *handler.UserHandler) *ServerHTTP {
 
 	engine.POST("/login", Handler.Login)
 	engine.POST("/user/new", Handler.Save)
+
 	api := engine.Group("/api", middleware.AuthorizationMiddleware)
-
-	api.GET("/users", Handler.FindAll)
-	api.GET("/users/:id", Handler.FindByID)
-	api.DELETE("/users/:id", Handler.Delete)
-
-	api.GET("/receitas", Handler.FindAll)
-	api.GET("/receitas/:id", Handler.FindByID)
-	api.POST("/receitas", Handler.Save)
-	api.DELETE("/receitas/:id", Handler.Delete)
-
-	api.GET("/despesas", Handler.FindAll)
-	api.GET("/despesas/:id", Handler.FindByID)
-	api.POST("/despesas", Handler.Save)
-	api.DELETE("/despesas/:id", Handler.Delete)
-
-	api.GET("/reservas", Handler.FindAll)
-	api.GET("/reservas/:id", Handler.FindByID)
-	api.POST("reservas", Handler.Save)
-	api.DELETE("/reservas/:id", Handler.Delete)
+	api.GET("/user/:id", Handler.FindByID)
+	api.PUT("/user/:id", Handler.Update)
+	api.DELETE("/user/:id", Handler.Delete)
 
 	return &ServerHTTP{engine: engine}
 }

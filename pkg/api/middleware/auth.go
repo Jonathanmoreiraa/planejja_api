@@ -13,12 +13,10 @@ import (
 )
 
 var (
-	secretKey         = []byte(os.Getenv("JWT_SECRET_KEY"))
-	expirationTime, _ = strconv.Atoi(os.Getenv("JWT_EXPIRATION_TIME"))
+	secretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 )
 
 func AuthorizationMiddleware(ctx *gin.Context) {
-	ctx.Request.Header.Set("Content-Type", "application/json")
 	tokenString := ctx.Request.Header.Get("Authorization")
 	if tokenString == "" {
 		fmt.Fprint(ctx.Copy().Writer, "Missing authorization header")
@@ -34,12 +32,18 @@ func AuthorizationMiddleware(ctx *gin.Context) {
 	}
 }
 
-func CreateToken(username string) (string, error) {
+func CreateToken(email string) (string, error) {
+	expirationTime, err := strconv.Atoi(os.Getenv("JWT_EXPIRATION_TIME"))
+	if err != nil {
+		return "", fmt.Errorf("%s", err)
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"username": username,
-			"exp":      time.Now().Add(time.Hour * time.Duration(expirationTime)).Unix(),
-		})
+			"email": email,
+			"exp":   time.Now().Add(time.Hour * time.Duration(expirationTime)).Unix(),
+		},
+	)
 
 	tokenString, err := token.SignedString(secretKey)
 	if err != nil {
@@ -51,6 +55,9 @@ func CreateToken(username string) (string, error) {
 
 func VerifyToken(tokenString string) error {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
 		return secretKey, nil
 	})
 	if err != nil {

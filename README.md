@@ -160,32 +160,11 @@ Os arquivos localizados fora das pastas são utilizados para criação de outros
 
 #### **Usuários**:
 
-- **POST** /login
-- **GET** /api/users
+- **POST** /login 
+- **POST** /user/new
 - **GET** /api/users/:id
-- **POST** /api/users
+- **PUT** /api/users/:id
 - **DELETE** /api/users/:id
-
-#### **Receitas**:
-
-- **GET** /api/receitas
-- **GET** /api/receitas/:id
-- **POST** /api/receitas
-- **DELETE** /api/receitas/:id
-
-#### **Despesas**:
-
-- **GET** /api/despesas
-- **GET** /api/despesas/:id
-- **POST** /api/despesas
-- **DELETE** /api/despesas/:id
-
-#### **Reservas**:
-
-- **GET** /api/reservas
-- **GET** /api/reservas/:id
-- **POST** /api/reservas
-- **DELETE** /api/reservas/:id
 
 ## Informações extras
 Caso ocorra o seguinte erro na conexão com o banco de dados ``Public Key Retrieval is not allowed`` será preciso alterar a propriedade ``allowPublicKeyRetrieval`` para **true** na aba **Propriedades do driver** no DBeaver ou equivalente.

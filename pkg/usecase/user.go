@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github/jonathanmoreiraa/planejja/pkg/api/middleware"
 	"github/jonathanmoreiraa/planejja/pkg/domain"
 	interfaces "github/jonathanmoreiraa/planejja/pkg/repository/interface"
@@ -21,11 +20,6 @@ func NewUserUseCase(repo interfaces.UserRepository) services.UserUseCase {
 	return &userUseCase{
 		userRepo: repo,
 	}
-}
-
-func (useCase *userUseCase) FindAll(ctx context.Context) ([]domain.Users, error) {
-	users, err := useCase.userRepo.FindAll(ctx)
-	return users, err
 }
 
 func (useCase *userUseCase) FindByID(ctx context.Context, id uint) (domain.Users, error) {
@@ -59,10 +53,18 @@ func (useCase *userUseCase) Save(ctx context.Context, user domain.Users) (domain
 	return user, nil
 }
 
-func (useCase *userUseCase) Update(ctx context.Context, user domain.Users) (domain.Users, error) {
-	user, err := useCase.userRepo.Save(ctx, user)
+func (useCase *userUseCase) Update(ctx context.Context, user domain.Users) error {
+	_, err := useCase.FindByID(ctx, user.ID)
+	if err != nil {
+		return err
+	}
 
-	return user, err
+	err = useCase.userRepo.Update(ctx, user)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (useCase *userUseCase) Delete(ctx context.Context, user domain.Users) error {
@@ -71,24 +73,25 @@ func (useCase *userUseCase) Delete(ctx context.Context, user domain.Users) error
 	return err
 }
 
-func (useCase *userUseCase) Login(ctx context.Context, email string, password string) (string, error) {
+func (useCase *userUseCase) Login(ctx context.Context, email string, password string) (map[string]any, error) {
 	user, err := useCase.userRepo.FindByEmail(ctx, email)
 	if err != nil {
-		return "", errors.New("usuário não encontrado")
+		return nil, errors.New("usuário não encontrado")
 	}
-	hashed, _ := HashPassword(password)
-	fmt.Println(hashed, user)
 
 	if !middleware.CheckPasswordHash(user.Password, password) {
-		return "", errors.New("senha incorreta")
+		return nil, errors.New("senha incorreta")
 	}
 
 	token, err := middleware.CreateToken(email)
 	if err != nil {
-		return "", errors.New("erro ao gerar o token")
+		return nil, errors.New("erro ao gerar o token")
 	}
 
-	return token, nil
+	return map[string]any{
+		"token":  token,
+		"userId": user.ID,
+	}, nil
 
 }
 

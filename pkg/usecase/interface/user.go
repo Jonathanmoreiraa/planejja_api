@@ -6,11 +6,10 @@ import (
 )
 
 type UserUseCase interface {
-	FindAll(ctx context.Context) ([]domain.Users, error)
 	FindByID(ctx context.Context, id uint) (domain.Users, error)
 	FindByEmail(ctx context.Context, email string) (domain.Users, error)
 	Save(ctx context.Context, user domain.Users) (domain.Users, error)
-	Update(ctx context.Context, user domain.Users) (domain.Users, error)
+	Update(ctx context.Context, user domain.Users) error
 	Delete(ctx context.Context, user domain.Users) error
-	Login(ctx context.Context, email string, password string) (string, error)
+	Login(ctx context.Context, email string, password string) (map[string]any, error)
 }
