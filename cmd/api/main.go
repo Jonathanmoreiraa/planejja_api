@@ -1,9 +1,10 @@
 package main
 
 import (
-	config "github/jonathanmoreiraa/planejja/pkg/config"
-	di "github/jonathanmoreiraa/planejja/pkg/di"
 	"log"
+
+	config "github.com/jonathanmoreiraa/planejja/internal/config"
+	di "github.com/jonathanmoreiraa/planejja/internal/di"
 )
 
 func main() {

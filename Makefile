@@ -30,11 +30,14 @@ deps:
 	$(GOCMD) mod tidy
 	$(GOCMD) mod vendor
 
-deps-cleancache:
+cleancache:
 	$(GOCMD) clean -modcache
 
 wire:
-	cd pkg/di && wire
+	cd internal/di && wire
 
 up:
 	@docker-compose up --build
+
+air:
+	air

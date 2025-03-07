@@ -1,4 +1,4 @@
-module github/jonathanmoreiraa/planejja
+module github.com/jonathanmoreiraa/planejja
 
 go 1.23.2
 
