@@ -7,9 +7,10 @@ import (
 )
 
 type RevenueRepository interface {
-	FindByID(ctx context.Context, id int) (entity.Revenue, error)
-	FindAll(ctx context.Context) (entity.Revenue, error)
-	Create(ctx context.Context, user entity.Revenue) (entity.Revenue, error)
-	// Update(ctx context.Context, user entity.Revenue) error
-	Delete(ctx context.Context, user entity.Revenue) error
+	Create(ctx context.Context, revenue entity.Revenue) (entity.Revenue, error)
+	FindAll(ctx context.Context, userId int) ([]entity.Revenue, error)
+	FindByID(ctx context.Context, userId int) (entity.Revenue, error)
+	FindByFilter(ctx context.Context, filters map[string]any) ([]entity.Revenue, error)
+	Update(ctx context.Context, revenue entity.Revenue) error
+	Delete(ctx context.Context, revenue entity.Revenue) error
 }

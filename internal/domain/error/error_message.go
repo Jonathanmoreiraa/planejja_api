@@ -12,4 +12,7 @@ var (
 	ErrCreateToken         = "Erro na criação do token"
 	ErrMethodLogin         = "Método de login inesperado"
 	ErrDecodeToken         = "Erro ao decodificar o token"
+	ErrCreateRevenue       = "Erro ao criar a receita"
+	ErrFindRevenue         = "Erro ao localizar a receita"
+	ErrUpdateRevenue       = "Erro ao editar o usuário"
 )

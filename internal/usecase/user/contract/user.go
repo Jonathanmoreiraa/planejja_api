@@ -1,4 +1,4 @@
-package user_contract
+package contract
 
 import (
 	"context"

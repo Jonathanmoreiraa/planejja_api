@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"github.com/jonathanmoreiraa/planejja/internal/api/middleware"
+	error_message "github.com/jonathanmoreiraa/planejja/internal/domain/error"
 	"github.com/jonathanmoreiraa/planejja/internal/domain/model"
 	user_contract "github.com/jonathanmoreiraa/planejja/internal/usecase/user/contract"
+	"github.com/jonathanmoreiraa/planejja/pkg/log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,7 +39,7 @@ func (cr *UserHandler) Create(ctx *gin.Context) {
 			"message":   "Erro ao criar a conta com esses dados.",
 			"more_info": "Verifique o corpo do requerimento.",
 		})
-
+		log.NewLogger().Error(err)
 		return
 	}
 
@@ -66,7 +68,7 @@ func (cr *UserHandler) Login(ctx *gin.Context) {
 			"code":    http.StatusUnprocessableEntity,
 			"message": "Erro ao realizar o login, verifique as credenciais!",
 		})
-
+		log.NewLogger().Error(err)
 		return
 	}
 
@@ -107,16 +109,17 @@ func (cr *UserHandler) Update(ctx *gin.Context) {
 	if err := ctx.ShouldBindJSON(&user); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
 			"code":    http.StatusUnprocessableEntity,
-			"message": "Erro ao realizar o login!",
+			"message": error_message.ErrUpdateAccount,
 		})
+		log.NewLogger().Error(err)
 		return
 	}
 
-	id, err := GetIdByToken(ctx)
+	id, err := GetUserIdByToken(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
 			"code":    http.StatusUnprocessableEntity,
-			"message": "Erro ao editar o usuário",
+			"message": error_message.ErrUpdateAccount,
 		})
 		return
 	}
@@ -130,12 +133,13 @@ func (cr *UserHandler) Update(ctx *gin.Context) {
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusConflict, gin.H{
 			"code":    http.StatusConflict,
-			"message": "Erro ao criar a conta!",
+			"message": error_message.ErrUpdateAccount,
 		})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
 		"message": "Usuário editado com sucesso!",
 		"data": gin.H{
 			"name":       user.Name,
@@ -147,9 +151,9 @@ func (cr *UserHandler) Update(ctx *gin.Context) {
 }
 
 func (cr *UserHandler) FindByID(ctx *gin.Context) {
-	id, err := GetIdByToken(ctx)
+	id, err := GetUserIdByToken(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
+		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"code":    http.StatusNotFound,
 			"message": "Erro ao localizar usuário com id informado!",
 		})
@@ -158,7 +162,7 @@ func (cr *UserHandler) FindByID(ctx *gin.Context) {
 
 	user, err := cr.userUseCase.GetUser(ctx, id)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
+		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"code":    http.StatusNotFound,
 			"message": "Erro ao localizar usuário!",
 		})
@@ -173,7 +177,7 @@ func (cr *UserHandler) FindByID(ctx *gin.Context) {
 	})
 }
 
-func GetIdByToken(ctx *gin.Context) (int, error) {
+func GetUserIdByToken(ctx *gin.Context) (int, error) {
 	tokenString := ctx.Request.Header.Get("Authorization")
 	tokenString = tokenString[len("Bearer "):]
 

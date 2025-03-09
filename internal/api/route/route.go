@@ -1,6 +1,7 @@
 package route
 
 import (
+	"net/http"
 	"os"
 
 	"github.com/jonathanmoreiraa/planejja/internal/api/handler"
@@ -31,10 +32,20 @@ func NewServerHTTP(Handlers HandlerGroup) *ServerHTTP {
 	api.PUT("/user/:id", Handlers.UserHandler.Update)
 	// api.DELETE("/user/:id", Handlers.UserHandler.Delete)
 
-	api.POST("/revenue/add", Handlers.RevenueHandler.FindByID)
+	api.POST("/revenue/add", Handlers.RevenueHandler.Create)
 	api.GET("/revenue/:id", Handlers.RevenueHandler.FindByID)
+	api.GET("/revenues", Handlers.RevenueHandler.FindAll)
+	api.POST("/revenue/filter", Handlers.RevenueHandler.FindByFilters)
 	api.PUT("/revenue/:id", Handlers.RevenueHandler.Update)
 	api.DELETE("/revenue/:id", Handlers.RevenueHandler.Delete)
+
+	engine.NoRoute(func(c *gin.Context) {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    http.StatusNotFound,
+			"error":   "Rota não encontrada",
+			"message": "Verifique a URL e tente novamente",
+		})
+	})
 
 	return &ServerHTTP{engine: engine}
 }
