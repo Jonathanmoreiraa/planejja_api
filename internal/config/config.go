@@ -2,10 +2,10 @@ package config
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/jonathanmoreiraa/planejja/pkg/log"
 )
 
 type Config struct {
@@ -20,7 +20,7 @@ type Config struct {
 func LoadConfig() (*Config, error) {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.NewLogger().Error(err)
 	}
 
 	if appNameEnv := os.Getenv("APP_NAME"); appNameEnv == "" {

@@ -2,11 +2,11 @@ package database
 
 import (
 	"fmt"
-	"log"
 
 	config "github.com/jonathanmoreiraa/planejja/internal/config"
 	entity "github.com/jonathanmoreiraa/planejja/internal/domain/model"
 	database "github.com/jonathanmoreiraa/planejja/internal/infra/database/interface"
+	"github.com/jonathanmoreiraa/planejja/pkg/log"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -27,12 +27,18 @@ func NewMySqlDatabase(cfg config.Config) (database.DatabaseProvider, error) {
 		//Logger:                 logger.Default.LogMode(logger.Info),
 	})
 	if dbErr != nil {
-		log.Fatal("cannot load database: ", dbErr)
+		log.NewLogger().Error(dbErr)
 	}
 
-	err := db.AutoMigrate(&entity.User{}, &entity.Revenue{})
+	err := db.AutoMigrate(
+		&entity.User{},
+		&entity.Revenue{},
+		&entity.Expense{},
+		&entity.Category{},
+		&entity.ExpensesCategories{},
+	)
 	if err != nil {
-		log.Fatal("erro na migração: ", err)
+		log.NewLogger().Error(err)
 	}
 
 	dbInstance := &MySQLProvider{Db: db}

@@ -1,22 +1,21 @@
 package main
 
 import (
-	"log"
-
 	config "github.com/jonathanmoreiraa/planejja/internal/config"
 	di "github.com/jonathanmoreiraa/planejja/internal/di"
+	"github.com/jonathanmoreiraa/planejja/pkg/log"
 )
 
 func main() {
 	config, configErr := config.LoadConfig()
 	if configErr != nil {
-		log.Fatal("cannot load config: ", configErr)
+		log.NewLogger().Error(configErr)
 	}
 
 	server, diErr := di.InitializeAPI(*config)
 	if diErr != nil {
-		log.Fatal("cannot start server: ", diErr)
-	} else {
-		server.Start()
+		log.NewLogger().Error(diErr)
 	}
+
+	server.Start()
 }
