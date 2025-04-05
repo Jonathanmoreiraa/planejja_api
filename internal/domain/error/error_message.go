@@ -14,5 +14,10 @@ var (
 	ErrDecodeToken         = "Erro ao decodificar o token"
 	ErrCreateRevenue       = "Erro ao criar a receita"
 	ErrFindRevenue         = "Erro ao localizar a receita"
-	ErrUpdateRevenue       = "Erro ao editar o usuário"
+	ErrUpdateRevenue       = "Erro ao editar a receita"
+	ErrCreateExpense       = "Erro ao criar a despesa"
+	ErrFindExpense         = "Erro ao localizar a despesa"
+	ErrUpdateExpense       = "Erro ao editar a despesa"
+	ErrCreateCategory      = "Erro ao criar a categoria"
+	ErrFindCategory        = "Erro ao encontrar a categoria"
 )

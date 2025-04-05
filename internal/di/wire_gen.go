@@ -12,6 +12,8 @@ import (
 	"github.com/jonathanmoreiraa/planejja/internal/config"
 	"github.com/jonathanmoreiraa/planejja/internal/infra/database"
 	"github.com/jonathanmoreiraa/planejja/internal/infra/repository"
+	"github.com/jonathanmoreiraa/planejja/internal/usecase/category"
+	"github.com/jonathanmoreiraa/planejja/internal/usecase/expense"
 	"github.com/jonathanmoreiraa/planejja/internal/usecase/revenue"
 	"github.com/jonathanmoreiraa/planejja/internal/usecase/user"
 )
@@ -29,16 +31,29 @@ func InitializeAPI(cfg config.Config) (*route.ServerHTTP, error) {
 	revenueRepository := repository.NewRevenueRepository(databaseProvider)
 	revenueUseCase := revenue.NewRevenueUseCase(revenueRepository)
 	revenueHandler := handler.NewRevenueHandler(revenueUseCase)
-	handlerGroup := NewHandlerGroup(userHandler, revenueHandler)
+	expenseRepository := repository.NewExpenseRepository(databaseProvider)
+	expenseUseCase := expense.NewExpenseUseCase(expenseRepository)
+	categoryRepository := repository.NewCategoryRepository(databaseProvider)
+	categoryUseCase := category.NewCategoryUseCase(categoryRepository)
+	expenseHandler := handler.NewExpenseHandler(expenseUseCase, categoryUseCase)
+	categoryHandler := handler.NewCategoryHandler(categoryUseCase)
+	handlerGroup := NewHandlerGroup(userHandler, revenueHandler, expenseHandler, categoryHandler)
 	serverHTTP := route.NewServerHTTP(handlerGroup)
 	return serverHTTP, nil
 }
 
 // wire.go:
 
-func NewHandlerGroup(userHandler *handler.UserHandler, revenueHandler *handler.RevenueHandler) route.HandlerGroup {
+func NewHandlerGroup(
+	userHandler *handler.UserHandler,
+	revenueHandler *handler.RevenueHandler,
+	expenseHandler *handler.ExpenseHandler,
+	categoryHandler *handler.CategoryHandler,
+) route.HandlerGroup {
 	return route.HandlerGroup{
-		UserHandler:    userHandler,
-		RevenueHandler: revenueHandler,
+		UserHandler:     userHandler,
+		RevenueHandler:  revenueHandler,
+		ExpenseHandler:  expenseHandler,
+		CategoryHandler: categoryHandler,
 	}
 }

@@ -35,7 +35,6 @@ func NewMySqlDatabase(cfg config.Config) (database.DatabaseProvider, error) {
 		&entity.Revenue{},
 		&entity.Expense{},
 		&entity.Category{},
-		&entity.ExpensesCategories{},
 	)
 	if err != nil {
 		log.NewLogger().Error(err)

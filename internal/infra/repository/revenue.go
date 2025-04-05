@@ -2,11 +2,13 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	entity "github.com/jonathanmoreiraa/planejja/internal/domain/model"
 	interfaces "github.com/jonathanmoreiraa/planejja/internal/domain/repository"
 	database "github.com/jonathanmoreiraa/planejja/internal/infra/database/interface"
+	"github.com/shopspring/decimal"
 
 	"gorm.io/gorm"
 )
@@ -49,7 +51,7 @@ func (database *revenueDatabase) FindByFilter(ctx context.Context, filters map[s
 		Where("deleted_at IS NULL")
 
 	if description, ok := filters["description"]; ok && description != "" {
-		query = query.Where("description = ?", description)
+		query = query.Where("description LIKE ?", "%"+description.(string)+"%")
 	}
 	if dateStart, ok := filters["date_start"]; ok && dateStart != "" {
 		query = query.Where("due_date >= ?", dateStart)
@@ -57,14 +59,18 @@ func (database *revenueDatabase) FindByFilter(ctx context.Context, filters map[s
 	if dateEnd, ok := filters["date_end"]; ok && dateEnd != "" {
 		query = query.Where("due_date <= ?", dateEnd)
 	}
-	if value, ok := filters["value"]; ok && value != "" {
-		query = query.Where("value = ?", value)
+	if min, ok := filters["min"]; ok && !min.(decimal.Decimal).IsZero() {
+		query = query.Where("value >= ?", min)
+	}
+	if max, ok := filters["max"]; ok && !max.(decimal.Decimal).IsZero() {
+		query = query.Where("value <= ?", max)
 	}
 	if received, ok := filters["received"]; ok && received != "" {
 		query = query.Where("received = ?", received)
 	}
 
 	err := query.Find(&revenues).Error
+	fmt.Println(query.Debug().Find(&revenues))
 
 	return revenues, err
 }
