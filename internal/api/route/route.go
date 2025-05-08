@@ -7,6 +7,7 @@ import (
 	"github.com/jonathanmoreiraa/planejja/internal/api/handler"
 	"github.com/jonathanmoreiraa/planejja/internal/api/middleware"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,17 +20,24 @@ type HandlerGroup struct {
 	RevenueHandler  *handler.RevenueHandler
 	ExpenseHandler  *handler.ExpenseHandler
 	CategoryHandler *handler.CategoryHandler
-	// Adicione outros handlers aqui futuramente
 }
 
 func NewServerHTTP(Handlers HandlerGroup) *ServerHTTP {
 	engine := gin.New()
 	engine.Use(gin.Logger())
 
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"}
+	config.AllowCredentials = true
+	engine.Use(cors.New(config))
+
 	engine.POST("/login", Handlers.UserHandler.Login)
 	engine.POST("/user/new", Handlers.UserHandler.Create)
 
 	api := engine.Group("/api", middleware.AuthorizationMiddleware)
+	api.GET("/user/me", Handlers.UserHandler.GetCurrentUser)
 	api.GET("/user/:id", Handlers.UserHandler.FindByID)
 	api.PUT("/user/:id", Handlers.UserHandler.Update)
 	// api.DELETE("/user/:id", Handlers.UserHandler.Delete)

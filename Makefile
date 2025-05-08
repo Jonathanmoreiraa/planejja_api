@@ -12,7 +12,7 @@ all: test build
 ${BINARY_DIR}:
 	mkdir -p $(BINARY_DIR)
 
-build: ${BINARY_DIR}
+local-build: ${BINARY_DIR}
 	$(GOCMD) build -o $(BINARY_DIR) -v ./cmd/api
 
 run:
@@ -38,6 +38,12 @@ wire:
 
 up:
 	@docker-compose up --build
+
+down:
+	@docker-compose down -v
+
+build:
+	@docker-compose down -v && @docker-compose up --build
 
 air:
 	air

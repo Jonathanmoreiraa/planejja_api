@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -165,6 +166,34 @@ func (cr *UserHandler) FindByID(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"code":    http.StatusNotFound,
 			"message": "Erro ao localizar usuário!",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"id":         user.ID,
+		"name":       user.Name,
+		"email":      user.Email,
+		"birth_date": user.BirthDate,
+	})
+}
+
+func (cr *UserHandler) GetCurrentUser(ctx *gin.Context) {
+	userId, err := GetUserIdByToken(ctx)
+	fmt.Println("userId", userId, ctx.Request.Header.Get("Authorization"))
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": "Token inválido ou expirado",
+		})
+		return
+	}
+
+	user, err := cr.userUseCase.GetUser(ctx.Request.Context(), userId)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			"code":    http.StatusUnauthorized,
+			"message": "Usuário não encontrado ou inativo",
 		})
 		return
 	}

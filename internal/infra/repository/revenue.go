@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	entity "github.com/jonathanmoreiraa/planejja/internal/domain/model"
@@ -43,9 +44,7 @@ func (database *revenueDatabase) FindByID(ctx context.Context, id int) (entity.R
 	return revenue, err
 }
 
-func (database *revenueDatabase) FindByFilter(ctx context.Context, filters map[string]any) ([]entity.Revenue, error) {
-	var revenues []entity.Revenue
-
+func (database *revenueDatabase) FindByFilter(ctx context.Context, filters map[string]any) (revenues []entity.Revenue, err error) {
 	query := database.DB.
 		Where("user_id = ?", filters["user_id"]).
 		Where("deleted_at IS NULL")
@@ -65,11 +64,31 @@ func (database *revenueDatabase) FindByFilter(ctx context.Context, filters map[s
 	if max, ok := filters["max"]; ok && !max.(decimal.Decimal).IsZero() {
 		query = query.Where("value <= ?", max)
 	}
-	if received, ok := filters["received"]; ok && received != "" {
-		query = query.Where("received = ?", received)
+	if status, ok := filters["status"]; ok && status != nil {
+		statusStruct := status.(struct {
+			Received bool `json:"received"`
+			Pending  bool `json:"pending"`
+			Overdue  bool `json:"overdue"`
+		})
+		conditions := []string{}
+
+		if statusStruct.Received {
+			conditions = append(conditions, "received = 1")
+		}
+		if statusStruct.Pending {
+			conditions = append(conditions, "(received = 0 AND due_date > '"+time.Now().Format("2006-01-02")+"')")
+		}
+		if statusStruct.Overdue {
+			conditions = append(conditions, "(received = 0 AND due_date < '"+time.Now().Format("2006-01-02")+"')")
+		}
+
+		if len(conditions) > 0 {
+			query = query.Where(strings.Join(conditions, " OR "))
+		}
 	}
 
-	err := query.Find(&revenues).Error
+	err = query.Find(&revenues).Error
+	//TODO: Remover debug
 	fmt.Println(query.Debug().Find(&revenues))
 
 	return revenues, err

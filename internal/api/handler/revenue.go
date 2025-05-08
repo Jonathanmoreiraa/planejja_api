@@ -23,9 +23,13 @@ type RevenueFilters struct {
 	Description string          `json:"description"`
 	Min         decimal.Decimal `json:"min"`
 	Max         decimal.Decimal `json:"max"`
-	Received    int             `json:"received"`
-	DateStart   string          `json:"date_start"`
-	DateEnd     string          `json:"date_end"`
+	Status      struct {
+		Received bool `json:"received"`
+		Pending  bool `json:"pending"`
+		Overdue  bool `json:"overdue"`
+	} `json:"status"`
+	DateStart string `json:"date_start"`
+	DateEnd   string `json:"date_end"`
 }
 
 func NewRevenueHandler(usecase revenue_contract.RevenueUseCase) *RevenueHandler {
@@ -156,9 +160,9 @@ func (cr *RevenueHandler) FindByFilters(ctx *gin.Context) {
 	filters["description"] = revenuesFilter.Description
 	filters["date_start"] = revenuesFilter.DateStart
 	filters["date_end"] = revenuesFilter.DateEnd
-	filters["min"] = revenuesFilter.Min
-	filters["max"] = revenuesFilter.Max
-	filters["received"] = revenuesFilter.Received
+	filters["min"] = revenuesFilter.Min //TODO: CONVERTER PARA DECIMAL
+	filters["max"] = revenuesFilter.Max //TODO: CONVERTER PARA DECIMAL
+	filters["status"] = revenuesFilter.Status
 	filters["user_id"] = userId
 
 	revenues, err := cr.revenueUseCase.GetRevenues(ctx.Request.Context(), filters)
