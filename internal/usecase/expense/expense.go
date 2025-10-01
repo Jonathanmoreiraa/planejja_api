@@ -20,8 +20,8 @@ func NewExpenseUseCase(repo repository.ExpenseRepository) services.ExpenseUseCas
 	}
 }
 
-func (useCase *expenseUseCase) Create(ctx context.Context, expense entity.Expense) (entity.Expense, error) {
-	expense, err := useCase.expenseRepo.Create(ctx, expense)
+func (useCase *expenseUseCase) Create(ctx context.Context, expense entity.Expense, multiplePayments bool, numInstallments int, paymentDay int) (entity.Expense, error) {
+	expense, err := useCase.expenseRepo.Create(ctx, expense, multiplePayments, numInstallments, paymentDay)
 	if err != nil {
 		return entity.Expense{}, util.ErrorWithMessage(err, error_message.ErrCreateAccount)
 	}

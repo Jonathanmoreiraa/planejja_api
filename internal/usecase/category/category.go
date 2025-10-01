@@ -67,11 +67,11 @@ func (useCase *categoryUseCase) GetCategoryById(ctx context.Context, id int, use
 // 	return nil
 // }
 
-// func (useCase *categoryUseCase) Delete(ctx context.Context, category entity.Category) error {
-// 	err := useCase.categoryRepo.Delete(ctx, category)
-// 	if err != nil {
-// 		return util.ErrorWithMessage(err, error_message.ErrUpdateCategory)
-// 	}
+func (useCase *categoryUseCase) Delete(ctx context.Context, category entity.Category) error {
+	err := useCase.categoryRepo.Delete(ctx, category)
+	if err != nil {
+		return util.ErrorWithMessage(err, error_message.ErrDeleteCategory)
+	}
 
-// 	return nil
-// }
+	return nil
+}

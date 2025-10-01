@@ -36,7 +36,7 @@ func InitializeAPI(cfg config.Config) (*route.ServerHTTP, error) {
 	categoryRepository := repository.NewCategoryRepository(databaseProvider)
 	categoryUseCase := category.NewCategoryUseCase(categoryRepository)
 	expenseHandler := handler.NewExpenseHandler(expenseUseCase, categoryUseCase)
-	categoryHandler := handler.NewCategoryHandler(categoryUseCase)
+	categoryHandler := handler.NewCategoryHandler(categoryUseCase, expenseUseCase)
 	handlerGroup := NewHandlerGroup(userHandler, revenueHandler, expenseHandler, categoryHandler)
 	serverHTTP := route.NewServerHTTP(handlerGroup)
 	return serverHTTP, nil

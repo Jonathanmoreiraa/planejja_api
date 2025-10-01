@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	error_message "github.com/jonathanmoreiraa/planejja/internal/domain/error"
 	"github.com/jonathanmoreiraa/planejja/internal/domain/model"
@@ -25,10 +26,36 @@ type ExpenseFilters struct {
 	Description string          `json:"description"`
 	Min         decimal.Decimal `json:"min"`
 	Max         decimal.Decimal `json:"max"`
-	CategoryID  int             `json:"category_id"`
+	Categories  []int           `json:"categories"`
 	Paid        int             `json:"paid"`
 	DateStart   string          `json:"date_start"`
 	DateEnd     string          `json:"date_end"`
+	Status      struct {
+		Pending bool `json:"pending"`
+		Paid    bool `json:"paid"`
+		Overdue bool `json:"overdue"`
+		DueSoon bool `json:"due_soon"`
+	} `json:"status"`
+}
+
+type ExpenseInput struct {
+	Description      string          `json:"description"`
+	Value            decimal.Decimal `json:"value"`
+	DueDate          *time.Time      `json:"due_date"`
+	CategoryID       int             `json:"category_id"`
+	MultiplePayments bool            `json:"multiple_payments"`
+	NumInstallments  int             `json:"num_installments"`
+	PaymentDay       int             `json:"payment_day"`
+}
+
+type ExpenseResponse struct {
+	ID          int             `json:"id"`
+	Description string          `json:"description"`
+	Value       decimal.Decimal `json:"value"`
+	DueDate     *time.Time      `json:"due_date"`
+	Paid        int             `json:"paid"`
+	Category    string          `json:"category"`
+	CategoryID  int             `json:"category_id"`
 }
 
 func NewExpenseHandler(expenseUseCase expense_contract.ExpenseUseCase, categoryUseCase category_contract.CategoryUseCase) *ExpenseHandler {
@@ -39,15 +66,22 @@ func NewExpenseHandler(expenseUseCase expense_contract.ExpenseUseCase, categoryU
 }
 
 func (cr *ExpenseHandler) Create(ctx *gin.Context) {
-	var expense entity.Expense
+	var input ExpenseInput
 
-	if err := ctx.ShouldBindJSON(&expense); err != nil {
+	if err := ctx.ShouldBindJSON(&input); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
 			"code":    http.StatusUnprocessableEntity,
 			"message": error_message.ErrCreateExpense,
 		})
 		log.NewLogger().Error(err)
 		return
+	}
+
+	expense := entity.Expense{
+		Description: input.Description,
+		Value:       input.Value,
+		DueDate:     input.DueDate,
+		CategoryID:  input.CategoryID,
 	}
 
 	userId, err := GetUserIdByToken(ctx)
@@ -71,7 +105,7 @@ func (cr *ExpenseHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	_, err = cr.expenseUseCase.Create(ctx.Request.Context(), expense)
+	_, err = cr.expenseUseCase.Create(ctx.Request.Context(), expense, input.MultiplePayments, input.NumInstallments, input.PaymentDay)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
 			"code":    http.StatusUnprocessableEntity,
@@ -87,6 +121,8 @@ func (cr *ExpenseHandler) Create(ctx *gin.Context) {
 }
 
 func (cr *ExpenseHandler) FindAll(ctx *gin.Context) {
+	var expensesResponse []ExpenseResponse
+
 	userId, err := GetUserIdByToken(ctx)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
@@ -106,7 +142,20 @@ func (cr *ExpenseHandler) FindAll(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, expenses)
+	for _, expense := range expenses {
+		category, _ := cr.categoryUseCase.GetCategoryById(ctx.Request.Context(), expense.CategoryID, userId)
+		expenseResponse := ExpenseResponse{
+			ID:          expense.ID,
+			Description: expense.Description,
+			Value:       expense.Value,
+			DueDate:     expense.DueDate,
+			Paid:        expense.Paid,
+			Category:    category.Name,
+		}
+		expensesResponse = append(expensesResponse, expenseResponse)
+	}
+
+	ctx.JSON(http.StatusOK, expensesResponse)
 }
 
 func (cr *ExpenseHandler) FindByID(ctx *gin.Context) {
@@ -155,6 +204,7 @@ func (cr *ExpenseHandler) FindByFilters(ctx *gin.Context) {
 			"message":   error_message.ErrCreateExpense,
 			"more_info": "Verifique as informações do usuário logado!",
 		})
+		log.NewLogger().Error(err)
 		return
 	}
 
@@ -166,9 +216,10 @@ func (cr *ExpenseHandler) FindByFilters(ctx *gin.Context) {
 	filters["max"] = expensesFilter.Max
 	filters["paid"] = expensesFilter.Paid
 	filters["user_id"] = userId
+	filters["status"] = expensesFilter.Status
 
-	if int(expensesFilter.CategoryID) > 0 {
-		filters["category_id"] = expensesFilter.CategoryID
+	if len(expensesFilter.Categories) > 0 {
+		filters["categories"] = expensesFilter.Categories
 	}
 
 	expenses, err := cr.expenseUseCase.GetExpenses(ctx.Request.Context(), filters)
@@ -177,10 +228,36 @@ func (cr *ExpenseHandler) FindByFilters(ctx *gin.Context) {
 			"code":    http.StatusNotFound,
 			"message": "Erro ao encontrar a despesa",
 		})
+		log.NewLogger().Error(err)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, expenses)
+	var expenseResponses []ExpenseResponse
+
+	for _, expense := range expenses {
+		category, err := cr.categoryUseCase.GetCategoryById(ctx.Request.Context(), expense.CategoryID, userId)
+		if err != nil {
+			log.NewLogger().Error(err)
+			continue
+		}
+		expenseResponse := ExpenseResponse{
+			ID:          expense.ID,
+			Description: expense.Description,
+			Value:       expense.Value,
+			DueDate:     expense.DueDate,
+			Paid:        expense.Paid,
+			Category:    category.Name,
+			CategoryID:  category.ID,
+		}
+		expenseResponses = append(expenseResponses, expenseResponse)
+	}
+
+	if len(expenseResponses) <= 0 {
+		ctx.JSON(http.StatusOK, []ExpenseResponse{})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, expenseResponses)
 }
 
 func (cr *ExpenseHandler) Update(ctx *gin.Context) {

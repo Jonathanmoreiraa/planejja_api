@@ -52,6 +52,7 @@ func NewServerHTTP(Handlers HandlerGroup) *ServerHTTP {
 	api.POST("/category/add", Handlers.CategoryHandler.Create)
 	api.GET("/categories", Handlers.CategoryHandler.GetAllCategories)
 	api.POST("/category", Handlers.CategoryHandler.FindCategory)
+	api.DELETE("/category/:id", Handlers.CategoryHandler.Delete)
 
 	api.POST("/expense/add", Handlers.ExpenseHandler.Create)
 	api.GET("/expense/:id", Handlers.ExpenseHandler.FindByID)

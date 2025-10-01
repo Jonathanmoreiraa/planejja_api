@@ -37,7 +37,6 @@ func (database *categoryDatabase) FindAll(ctx context.Context, userId int) ([]en
 func (database *categoryDatabase) FindByName(ctx context.Context, name string, userId int) ([]entity.Category, error) {
 	var categories []entity.Category
 
-	//TODO: criar um like
 	query := database.DB.
 		Where("user_id = ?", userId).
 		Where("name LIKE ?", "%"+name+"%").

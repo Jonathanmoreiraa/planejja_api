@@ -20,4 +20,5 @@ var (
 	ErrUpdateExpense       = "Erro ao editar a despesa"
 	ErrCreateCategory      = "Erro ao criar a categoria"
 	ErrFindCategory        = "Erro ao encontrar a categoria"
+	ErrDeleteCategory      = "Erro ao deletar a categoria"
 )

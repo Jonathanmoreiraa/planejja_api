@@ -160,8 +160,8 @@ func (cr *RevenueHandler) FindByFilters(ctx *gin.Context) {
 	filters["description"] = revenuesFilter.Description
 	filters["date_start"] = revenuesFilter.DateStart
 	filters["date_end"] = revenuesFilter.DateEnd
-	filters["min"] = revenuesFilter.Min //TODO: CONVERTER PARA DECIMAL
-	filters["max"] = revenuesFilter.Max //TODO: CONVERTER PARA DECIMAL
+	filters["min"] = revenuesFilter.Min
+	filters["max"] = revenuesFilter.Max
 	filters["status"] = revenuesFilter.Status
 	filters["user_id"] = userId
 
@@ -171,6 +171,11 @@ func (cr *RevenueHandler) FindByFilters(ctx *gin.Context) {
 			"code":    http.StatusNotFound,
 			"message": "Erro ao encontrar a receita",
 		})
+		return
+	}
+
+	if len(revenues) <= 0 {
+		ctx.JSON(http.StatusOK, []model.Revenue{})
 		return
 	}
 
