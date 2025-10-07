@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	error_message "github.com/jonathanmoreiraa/planejja/internal/domain/error"
-	"github.com/jonathanmoreiraa/planejja/pkg/util"
+	error_message "github.com/jonathanmoreiraa/2cents/internal/domain/error"
+	"github.com/jonathanmoreiraa/2cents/pkg/util"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"

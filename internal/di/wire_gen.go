@@ -7,15 +7,15 @@
 package di
 
 import (
-	"github.com/jonathanmoreiraa/planejja/internal/api/handler"
-	"github.com/jonathanmoreiraa/planejja/internal/api/route"
-	"github.com/jonathanmoreiraa/planejja/internal/config"
-	"github.com/jonathanmoreiraa/planejja/internal/infra/database"
-	"github.com/jonathanmoreiraa/planejja/internal/infra/repository"
-	"github.com/jonathanmoreiraa/planejja/internal/usecase/category"
-	"github.com/jonathanmoreiraa/planejja/internal/usecase/expense"
-	"github.com/jonathanmoreiraa/planejja/internal/usecase/revenue"
-	"github.com/jonathanmoreiraa/planejja/internal/usecase/user"
+	"github.com/jonathanmoreiraa/2cents/internal/api/handler"
+	"github.com/jonathanmoreiraa/2cents/internal/api/route"
+	"github.com/jonathanmoreiraa/2cents/internal/config"
+	"github.com/jonathanmoreiraa/2cents/internal/infra/database"
+	"github.com/jonathanmoreiraa/2cents/internal/infra/repository"
+	"github.com/jonathanmoreiraa/2cents/internal/usecase/category"
+	"github.com/jonathanmoreiraa/2cents/internal/usecase/expense"
+	"github.com/jonathanmoreiraa/2cents/internal/usecase/revenue"
+	"github.com/jonathanmoreiraa/2cents/internal/usecase/user"
 )
 
 // Injectors from wire.go:

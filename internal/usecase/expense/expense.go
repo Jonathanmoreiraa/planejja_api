@@ -3,11 +3,11 @@ package expense
 import (
 	"context"
 
-	error_message "github.com/jonathanmoreiraa/planejja/internal/domain/error"
-	entity "github.com/jonathanmoreiraa/planejja/internal/domain/model"
-	"github.com/jonathanmoreiraa/planejja/internal/domain/repository"
-	services "github.com/jonathanmoreiraa/planejja/internal/usecase/expense/contract"
-	"github.com/jonathanmoreiraa/planejja/pkg/util"
+	error_message "github.com/jonathanmoreiraa/2cents/internal/domain/error"
+	entity "github.com/jonathanmoreiraa/2cents/internal/domain/model"
+	"github.com/jonathanmoreiraa/2cents/internal/domain/repository"
+	services "github.com/jonathanmoreiraa/2cents/internal/usecase/expense/contract"
+	"github.com/jonathanmoreiraa/2cents/pkg/util"
 )
 
 type expenseUseCase struct {

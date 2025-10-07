@@ -3,10 +3,10 @@ package database
 import (
 	"fmt"
 
-	config "github.com/jonathanmoreiraa/planejja/internal/config"
-	entity "github.com/jonathanmoreiraa/planejja/internal/domain/model"
-	database "github.com/jonathanmoreiraa/planejja/internal/infra/database/interface"
-	"github.com/jonathanmoreiraa/planejja/pkg/log"
+	config "github.com/jonathanmoreiraa/2cents/internal/config"
+	entity "github.com/jonathanmoreiraa/2cents/internal/domain/model"
+	database "github.com/jonathanmoreiraa/2cents/internal/infra/database/interface"
+	"github.com/jonathanmoreiraa/2cents/pkg/log"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

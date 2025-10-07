@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/jonathanmoreiraa/planejja/pkg/log"
+	"github.com/jonathanmoreiraa/2cents/pkg/log"
 )
 
 type Config struct {

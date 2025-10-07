@@ -4,12 +4,12 @@ import (
 	"net/http"
 	"strconv"
 
-	error_message "github.com/jonathanmoreiraa/planejja/internal/domain/error"
-	"github.com/jonathanmoreiraa/planejja/internal/domain/model"
-	entity "github.com/jonathanmoreiraa/planejja/internal/domain/model"
-	category_contract "github.com/jonathanmoreiraa/planejja/internal/usecase/category/contract"
-	expense_contract "github.com/jonathanmoreiraa/planejja/internal/usecase/expense/contract"
-	"github.com/jonathanmoreiraa/planejja/pkg/log"
+	error_message "github.com/jonathanmoreiraa/2cents/internal/domain/error"
+	"github.com/jonathanmoreiraa/2cents/internal/domain/model"
+	entity "github.com/jonathanmoreiraa/2cents/internal/domain/model"
+	category_contract "github.com/jonathanmoreiraa/2cents/internal/usecase/category/contract"
+	expense_contract "github.com/jonathanmoreiraa/2cents/internal/usecase/expense/contract"
+	"github.com/jonathanmoreiraa/2cents/pkg/log"
 
 	"github.com/gin-gonic/gin"
 )

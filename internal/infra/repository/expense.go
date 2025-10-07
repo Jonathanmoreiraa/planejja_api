@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	entity "github.com/jonathanmoreiraa/planejja/internal/domain/model"
-	interfaces "github.com/jonathanmoreiraa/planejja/internal/domain/repository"
-	database "github.com/jonathanmoreiraa/planejja/internal/infra/database/interface"
+	entity "github.com/jonathanmoreiraa/2cents/internal/domain/model"
+	interfaces "github.com/jonathanmoreiraa/2cents/internal/domain/repository"
+	database "github.com/jonathanmoreiraa/2cents/internal/infra/database/interface"
 	"github.com/shopspring/decimal"
 
 	"gorm.io/gorm"

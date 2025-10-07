@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: planejja-api
+    container_name: 2cents-api
     ports:
       - "8080:8080"
     volumes:

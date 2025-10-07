@@ -3,7 +3,7 @@ package util
 import (
 	"fmt"
 
-	"github.com/jonathanmoreiraa/planejja/pkg/log"
+	"github.com/jonathanmoreiraa/2cents/pkg/log"
 )
 
 type AppError struct {

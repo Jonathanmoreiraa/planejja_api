@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/jonathanmoreiraa/planejja/internal/api/handler"
-	"github.com/jonathanmoreiraa/planejja/internal/api/middleware"
+	"github.com/jonathanmoreiraa/2cents/internal/api/handler"
+	"github.com/jonathanmoreiraa/2cents/internal/api/middleware"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

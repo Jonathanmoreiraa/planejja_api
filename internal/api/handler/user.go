@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/jonathanmoreiraa/planejja/internal/api/middleware"
-	error_message "github.com/jonathanmoreiraa/planejja/internal/domain/error"
-	"github.com/jonathanmoreiraa/planejja/internal/domain/model"
-	user_contract "github.com/jonathanmoreiraa/planejja/internal/usecase/user/contract"
-	"github.com/jonathanmoreiraa/planejja/pkg/log"
+	"github.com/jonathanmoreiraa/2cents/internal/api/middleware"
+	error_message "github.com/jonathanmoreiraa/2cents/internal/domain/error"
+	"github.com/jonathanmoreiraa/2cents/internal/domain/model"
+	user_contract "github.com/jonathanmoreiraa/2cents/internal/usecase/user/contract"
+	"github.com/jonathanmoreiraa/2cents/pkg/log"
 
 	"github.com/gin-gonic/gin"
 )

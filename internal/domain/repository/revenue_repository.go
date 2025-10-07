@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	entity "github.com/jonathanmoreiraa/planejja/internal/domain/model"
+	entity "github.com/jonathanmoreiraa/2cents/internal/domain/model"
 )
 
 type RevenueRepository interface {

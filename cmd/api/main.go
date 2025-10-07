@@ -1,9 +1,9 @@
 package main
 
 import (
-	config "github.com/jonathanmoreiraa/planejja/internal/config"
-	di "github.com/jonathanmoreiraa/planejja/internal/di"
-	"github.com/jonathanmoreiraa/planejja/pkg/log"
+	config "github.com/jonathanmoreiraa/2cents/internal/config"
+	di "github.com/jonathanmoreiraa/2cents/internal/di"
+	"github.com/jonathanmoreiraa/2cents/pkg/log"
 )
 
 func main() {
