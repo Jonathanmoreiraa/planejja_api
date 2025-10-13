@@ -6,6 +6,7 @@ import (
 	config "github.com/jonathanmoreiraa/2cents/internal/config"
 	entity "github.com/jonathanmoreiraa/2cents/internal/domain/model"
 	database "github.com/jonathanmoreiraa/2cents/internal/infra/database/interface"
+	"github.com/jonathanmoreiraa/2cents/internal/infra/seed"
 	"github.com/jonathanmoreiraa/2cents/pkg/log"
 
 	"gorm.io/driver/mysql"
@@ -35,12 +36,16 @@ func NewMySqlDatabase(cfg config.Config) (database.DatabaseProvider, error) {
 		&entity.Revenue{},
 		&entity.Expense{},
 		&entity.Category{},
+		&entity.Saving{},
+		&entity.InvestimentType{},
+		&entity.Metric{},
 	)
 	if err != nil {
 		log.NewLogger().Error(err)
 	}
 
 	dbInstance := &MySQLProvider{Db: db}
+	seed.Run(dbInstance.Db)
 
 	return dbInstance, dbErr
 }

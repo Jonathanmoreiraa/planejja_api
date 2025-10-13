@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	entity "github.com/jonathanmoreiraa/2cents/internal/domain/model"
@@ -34,16 +35,19 @@ func (database *categoryDatabase) FindAll(ctx context.Context, userId int) ([]en
 	return categories, err
 }
 
-func (database *categoryDatabase) FindByName(ctx context.Context, name string, userId int) ([]entity.Category, error) {
+func (database *categoryDatabase) FindByName(ctx context.Context, name string, userId *int) ([]entity.Category, error) {
 	var categories []entity.Category
+	userIdString := fmt.Sprintf("user_id = %d", userId)
+	if userId == nil {
+		userIdString = "user_id IS NULL"
+	}
 
 	query := database.DB.
-		Where("user_id = ?", userId).
+		Where(userIdString).
 		Where("name LIKE ?", "%"+name+"%").
 		Where("deleted_at IS NULL")
 
 	err := query.Find(&categories).Error
-
 	return categories, err
 }
 
@@ -51,8 +55,9 @@ func (database *categoryDatabase) FindById(ctx context.Context, id int, userId i
 	var category entity.Category
 
 	query := database.DB.
-		Where("user_id = ?", userId).
 		Where("deleted_at IS NULL")
+
+	query.Where("user_id = ?", userId).Or("user_id IS NULL")
 
 	err := query.Find(&category, id).Error
 

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -115,7 +114,6 @@ func (database *expenseDatabase) FindByFilter(ctx context.Context, filters map[s
 	}
 
 	err := query.Find(&expenses).Error
-	fmt.Println(query.Debug().Find(&expenses))
 
 	return expenses, err
 }

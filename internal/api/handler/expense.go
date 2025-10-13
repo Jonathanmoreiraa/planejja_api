@@ -48,6 +48,7 @@ type ExpenseInput struct {
 	PaymentDay       int             `json:"payment_day"`
 }
 
+// TODO: criar uma rota para retornar a média de gastos dos três últimos meses
 type ExpenseResponse struct {
 	ID          int             `json:"id"`
 	Description string          `json:"description"`
@@ -77,6 +78,23 @@ func (cr *ExpenseHandler) Create(ctx *gin.Context) {
 		return
 	}
 
+	err := cr.createExpenseInternal(ctx, input)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
+			"code":      http.StatusUnprocessableEntity,
+			"message":   error_message.ErrCreateExpense,
+			"more_info": "Verifique as informações do usuário logado!",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"code":    http.StatusOK,
+		"message": "Despesa criada com sucesso!",
+	})
+}
+
+func (cr *ExpenseHandler) createExpenseInternal(ctx *gin.Context, input ExpenseInput) error {
 	expense := entity.Expense{
 		Description: input.Description,
 		Value:       input.Value,
@@ -86,38 +104,16 @@ func (cr *ExpenseHandler) Create(ctx *gin.Context) {
 
 	userId, err := GetUserIdByToken(ctx)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
-			"code":      http.StatusUnprocessableEntity,
-			"message":   error_message.ErrCreateExpense,
-			"more_info": "Verifique as informações do usuário logado!",
-		})
-		return
+		return err
 	}
 	expense.UserID = userId
 
-	category, err := cr.categoryUseCase.GetCategoryById(ctx.Request.Context(), expense.CategoryID, userId)
-	if err != nil || category.ID == 0 {
-		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
-			"code":      http.StatusUnprocessableEntity,
-			"message":   error_message.ErrCreateExpense,
-			"more_info": "Verifique as informações da categoria!",
-		})
-		return
-	}
-
 	_, err = cr.expenseUseCase.Create(ctx.Request.Context(), expense, input.MultiplePayments, input.NumInstallments, input.PaymentDay)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
-			"code":    http.StatusUnprocessableEntity,
-			"message": error_message.ErrCreateExpense,
-		})
-		return
+		return err
 	}
 
-	ctx.JSON(http.StatusCreated, gin.H{
-		"code":    http.StatusOK,
-		"message": "Despesa criada com sucesso!",
-	})
+	return nil
 }
 
 func (cr *ExpenseHandler) FindAll(ctx *gin.Context) {
@@ -300,6 +296,7 @@ func (cr *ExpenseHandler) Update(ctx *gin.Context) {
 	})
 }
 
+// TODO: adicionar verificação se a despesa pertence a uma caixinha para diminuir o valor
 func (cr *ExpenseHandler) Delete(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {

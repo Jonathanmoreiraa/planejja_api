@@ -34,5 +34,6 @@ func NewLogger() Logger {
 }
 
 func (l *DefaultLogger) Error(args ...interface{}) {
+	fmt.Printf("Erro encontrado: %v\n", args...)
 	l.errorLogger.Printf("%v\n", args...)
 }

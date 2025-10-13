@@ -49,7 +49,7 @@ func (cr *CategoryHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	category.UserID = userId
+	category.UserID = &userId
 	category, err = cr.categoryUseCase.Create(ctx.Request.Context(), category)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
@@ -74,7 +74,7 @@ func (cr *CategoryHandler) GetAllCategories(ctx *gin.Context) {
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{
 			"code":      http.StatusUnprocessableEntity,
-			"message":   error_message.ErrCreateCategory,
+			"message":   error_message.ErrFindCategory,
 			"more_info": "Verifique as informações do usuário logado!",
 		})
 		log.NewLogger().Error(err)
@@ -122,7 +122,7 @@ func (cr *CategoryHandler) FindCategory(ctx *gin.Context) {
 		return
 	}
 
-	categories, err := cr.categoryUseCase.GetCategory(ctx.Request.Context(), category.Name, userId)
+	categories, err := cr.categoryUseCase.GetCategory(ctx.Request.Context(), category.Name, &userId)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
 			"code":    http.StatusNotFound,

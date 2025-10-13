@@ -15,6 +15,7 @@ import (
 	"github.com/jonathanmoreiraa/2cents/internal/usecase/category"
 	"github.com/jonathanmoreiraa/2cents/internal/usecase/expense"
 	"github.com/jonathanmoreiraa/2cents/internal/usecase/revenue"
+	"github.com/jonathanmoreiraa/2cents/internal/usecase/saving"
 	"github.com/jonathanmoreiraa/2cents/internal/usecase/user"
 )
 
@@ -37,7 +38,10 @@ func InitializeAPI(cfg config.Config) (*route.ServerHTTP, error) {
 	categoryUseCase := category.NewCategoryUseCase(categoryRepository)
 	expenseHandler := handler.NewExpenseHandler(expenseUseCase, categoryUseCase)
 	categoryHandler := handler.NewCategoryHandler(categoryUseCase, expenseUseCase)
-	handlerGroup := NewHandlerGroup(userHandler, revenueHandler, expenseHandler, categoryHandler)
+	savingRepository := repository.NewSavingRepository(databaseProvider)
+	savingUseCase := saving.NewSavingUseCase(savingRepository)
+	savingHandler := handler.NewSavingHandler(savingUseCase, expenseHandler)
+	handlerGroup := NewHandlerGroup(userHandler, revenueHandler, expenseHandler, categoryHandler, savingHandler)
 	serverHTTP := route.NewServerHTTP(handlerGroup)
 	return serverHTTP, nil
 }
@@ -49,11 +53,13 @@ func NewHandlerGroup(
 	revenueHandler *handler.RevenueHandler,
 	expenseHandler *handler.ExpenseHandler,
 	categoryHandler *handler.CategoryHandler,
+	savingHandler *handler.SavingHandler,
 ) route.HandlerGroup {
 	return route.HandlerGroup{
 		UserHandler:     userHandler,
 		RevenueHandler:  revenueHandler,
 		ExpenseHandler:  expenseHandler,
 		CategoryHandler: categoryHandler,
+		SavingHandler:   savingHandler,
 	}
 }

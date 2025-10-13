@@ -13,6 +13,7 @@ import (
 	"github.com/jonathanmoreiraa/2cents/internal/usecase/category"
 	"github.com/jonathanmoreiraa/2cents/internal/usecase/expense"
 	"github.com/jonathanmoreiraa/2cents/internal/usecase/revenue"
+	"github.com/jonathanmoreiraa/2cents/internal/usecase/saving"
 	"github.com/jonathanmoreiraa/2cents/internal/usecase/user"
 
 	"github.com/google/wire"
@@ -23,12 +24,14 @@ func NewHandlerGroup(
 	revenueHandler *handler.RevenueHandler,
 	expenseHandler *handler.ExpenseHandler,
 	categoryHandler *handler.CategoryHandler,
+	savingHandler *handler.SavingHandler,
 ) route.HandlerGroup {
 	return route.HandlerGroup{
 		UserHandler:     userHandler,
 		RevenueHandler:  revenueHandler,
 		ExpenseHandler:  expenseHandler,
 		CategoryHandler: categoryHandler,
+		SavingHandler:   savingHandler,
 	}
 }
 
@@ -40,16 +43,19 @@ func InitializeAPI(cfg config.Config) (*route.ServerHTTP, error) {
 		repository.NewRevenueRepository,
 		repository.NewExpenseRepository,
 		repository.NewCategoryRepository,
+		repository.NewSavingRepository,
 
 		user.NewUserUseCase,
 		revenue.NewRevenueUseCase,
 		expense.NewExpenseUseCase,
 		category.NewCategoryUseCase,
+		saving.NewSavingUseCase,
 
 		handler.NewUserHandler,
 		handler.NewRevenueHandler,
 		handler.NewExpenseHandler,
 		handler.NewCategoryHandler,
+		handler.NewSavingHandler,
 
 		NewHandlerGroup,
 		route.NewServerHTTP,

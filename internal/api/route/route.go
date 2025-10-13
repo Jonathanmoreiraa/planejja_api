@@ -20,6 +20,7 @@ type HandlerGroup struct {
 	RevenueHandler  *handler.RevenueHandler
 	ExpenseHandler  *handler.ExpenseHandler
 	CategoryHandler *handler.CategoryHandler
+	SavingHandler   *handler.SavingHandler
 }
 
 func NewServerHTTP(Handlers HandlerGroup) *ServerHTTP {
@@ -60,6 +61,12 @@ func NewServerHTTP(Handlers HandlerGroup) *ServerHTTP {
 	api.POST("/expense/filter", Handlers.ExpenseHandler.FindByFilters)
 	api.PUT("/expense/:id", Handlers.ExpenseHandler.Update)
 	api.DELETE("/expense/:id", Handlers.ExpenseHandler.Delete)
+
+	api.POST("/saving/add", Handlers.SavingHandler.Create)
+	api.GET("/saving/:id", Handlers.SavingHandler.FindByID)
+	api.GET("/savings", Handlers.SavingHandler.FindAll)
+	api.PUT("/saving/:id", Handlers.SavingHandler.Update)
+	api.DELETE("/saving/:id", Handlers.SavingHandler.Delete)
 
 	engine.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{

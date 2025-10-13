@@ -40,7 +40,7 @@ func (useCase *categoryUseCase) GetAllCategories(ctx context.Context, userId int
 	return categories, nil
 }
 
-func (useCase *categoryUseCase) GetCategory(ctx context.Context, name string, userId int) ([]entity.Category, error) {
+func (useCase *categoryUseCase) GetCategory(ctx context.Context, name string, userId *int) ([]entity.Category, error) {
 	category, err := useCase.categoryRepo.FindByName(ctx, name, userId)
 	if err != nil {
 		return []entity.Category{}, util.ErrorWithMessage(err, error_message.ErrFindCategory)
